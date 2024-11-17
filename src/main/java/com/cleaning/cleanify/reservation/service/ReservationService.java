@@ -47,6 +47,8 @@ public class ReservationService {
 		reservation.setPrice(reservationCreateRequest.price());
 		reservation.setEstimatedTimeHours(reservationCreateRequest.estimatedTimeHours());
 		reservation.setCleaningType(cleaningTypeRepository.findById(reservationCreateRequest.cleaningType()).orElseThrow());
+		reservation.setFloor(reservationCreateRequest.floor());
+		reservation.setApartment(reservationCreateRequest.apartment());
 		reservation.setUser(authenticatedUser);
 
 		List<Long> additionalServicesIds = reservationCreateRequest.additionalServices();
@@ -78,7 +80,8 @@ public class ReservationService {
 		newReservation.setKeyLocation(request.keyLocation());
 		newReservation.setAdditionalInstructions(request.comment());
 		newReservation.setEstimatedTimeHours(request.estimatedTimeHours());
-
+		newReservation.setFloor(reservation.getFloor());
+		newReservation.setApartment(reservation.getApartment());
 
 		List<AdditionalServices> newAdditionalServices = new ArrayList<>(reservation.getAdditionalServices());
 		newReservation.setAdditionalServices(newAdditionalServices);

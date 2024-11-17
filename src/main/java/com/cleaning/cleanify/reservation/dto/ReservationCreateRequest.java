@@ -15,6 +15,8 @@ public record ReservationCreateRequest(
 		String email,
 		String keyLocation,
 		String additionalInstructions,
-		BigDecimal estimatedTimeHours
+		BigDecimal estimatedTimeHours,
+		int floor,
+		int apartment
 ) {
 }

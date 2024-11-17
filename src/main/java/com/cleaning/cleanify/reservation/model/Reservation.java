@@ -46,9 +46,16 @@ public class Reservation {
 	@Enumerated(EnumType.STRING)
 	private State state;
 
+	@Column(name = "FLOOR")
+	private int floor;
+
+	@Column(name = "APARTMENT")
+	private int apartment;
+
 	@OneToOne
 	@JoinColumn(name = "CLEANING_TYPE_ID")
 	private CleaningType cleaningType;
+
 
 	@ManyToOne
 	@JoinColumn(name = "USER_ID")
@@ -65,6 +72,21 @@ public class Reservation {
 	public Reservation() {
 	}
 
+	public int getApartment() {
+		return apartment;
+	}
+
+	public void setApartment(int apartment) {
+		this.apartment = apartment;
+	}
+
+	public int getFloor() {
+		return floor;
+	}
+
+	public void setFloor(int floor) {
+		this.floor = floor;
+	}
 
 	public String getAdditionalInstructions() {
 		return additionalInstructions;
