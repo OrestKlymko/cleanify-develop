@@ -45,6 +45,12 @@
             <artifactId>google-oauth-client-jetty</artifactId>
             <version>1.32.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.stripe/stripe-java -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>28.1.0-beta.3</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

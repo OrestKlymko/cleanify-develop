@@ -30,6 +30,13 @@ public class User {
 	@Column(name = "BIRTH_DATE")
 	private LocalDate birthDate;
 
+	@Column(name = "ROLE")
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
+	@Column(name = "CUSTOMER_ID")
+	private String customerId;
+
 	@OneToMany(mappedBy = "user")
 	private List<Reservation> reservations;
 
@@ -37,6 +44,22 @@ public class User {
 		this.phoneNumber = phoneNumber;
 		this.firstName = firstName;
 		this.email = email;
+	}
+
+	public String getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	public User() {
