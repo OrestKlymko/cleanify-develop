@@ -1,4 +1,12 @@
 package com.cleaning.cleanify.auth.dto;
 
-public class UserUpdateResponse {
+import java.time.LocalDate;
+
+public record UserUpdateResponse(
+		String email,
+		String givenName,
+		LocalDate birthDate,
+		String phone,
+		String address
+) {
 }

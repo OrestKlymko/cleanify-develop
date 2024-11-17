@@ -1,4 +1,6 @@
 package com.cleaning.cleanify.auth.dto;
 
-public class LoginRequest {
+public record LoginRequest(
+			String idToken
+) {
 }

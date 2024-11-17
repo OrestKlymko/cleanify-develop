@@ -1,4 +1,11 @@
 package com.cleaning.cleanify.cleaningType.dto;
 
-public class CleaningTypeResponse {
+import java.math.BigDecimal;
+
+public record CleaningTypeResponse(
+		Long id,
+		String key,
+		String value,
+		BigDecimal price
+) {
 }
