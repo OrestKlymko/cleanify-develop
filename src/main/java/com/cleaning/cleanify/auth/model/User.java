@@ -1,5 +1,6 @@
 package com.cleaning.cleanify.auth.model;
 
+import com.cleaning.cleanify.messages.model.Message;
 import com.cleaning.cleanify.reservation.model.Reservation;
 import jakarta.persistence.*;
 
@@ -37,6 +38,9 @@ public class User {
 	@Column(name = "CUSTOMER_ID")
 	private String customerId;
 
+	@OneToMany(mappedBy = "sender")
+	private List<Message> messages;
+
 	@OneToMany(mappedBy = "user")
 	private List<Reservation> reservations;
 
@@ -44,6 +48,14 @@ public class User {
 		this.phoneNumber = phoneNumber;
 		this.firstName = firstName;
 		this.email = email;
+	}
+
+	public List<Message> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(List<Message> messages) {
+		this.messages = messages;
 	}
 
 	public String getCustomerId() {

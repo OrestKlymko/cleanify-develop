@@ -1,15 +1,13 @@
 package com.cleaning.cleanify.payment;
 
-import com.cleaning.cleanify.auth.UserService;
+import com.cleaning.cleanify.auth.service.UserService;
 import com.cleaning.cleanify.auth.model.User;
 import com.cleaning.cleanify.auth.repository.UserRepository;
-import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentMethod;
 import com.stripe.model.SetupIntent;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;

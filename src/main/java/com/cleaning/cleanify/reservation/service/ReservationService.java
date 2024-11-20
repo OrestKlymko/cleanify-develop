@@ -3,11 +3,12 @@ package com.cleaning.cleanify.reservation.service;
 
 import com.cleaning.cleanify.additionalService.model.AdditionalServices;
 import com.cleaning.cleanify.additionalService.repository.AdditionalServicesRepository;
-import com.cleaning.cleanify.auth.UserService;
+import com.cleaning.cleanify.auth.service.UserService;
 import com.cleaning.cleanify.auth.model.User;
 import com.cleaning.cleanify.cleaningType.repository.CleaningTypeRepository;
 import com.cleaning.cleanify.reservation.dto.RebookReservationRequest;
 import com.cleaning.cleanify.reservation.dto.ReservationCreateRequest;
+import com.cleaning.cleanify.reservation.dto.ReservationFullResponse;
 import com.cleaning.cleanify.reservation.dto.UserReservationResponse;
 import com.cleaning.cleanify.reservation.model.Reservation;
 import com.cleaning.cleanify.reservation.model.State;
@@ -65,6 +66,10 @@ public class ReservationService {
 		return reservationRepository.getReservationsByUser(user.getId());
 	}
 
+	public List<ReservationFullResponse> getAllReservationsForAdmin() {
+		return reservationRepository.getAllReservationsForAdmin();
+	}
+
 	public void rebookReservation(RebookReservationRequest request) {
 		Reservation reservation = reservationRepository.findById(request.id()).orElseThrow();
 		Reservation newReservation = new Reservation();
@@ -87,4 +92,21 @@ public class ReservationService {
 		newReservation.setAdditionalServices(newAdditionalServices);
 		reservationRepository.save(newReservation);
 	}
+
+
+	public void cancelReservation(Long id) {
+		Reservation reservation = reservationRepository.findById(id).orElseThrow();
+		reservation.setState(State.CANCELLED);
+		reservationRepository.save(reservation);
+	}
+
+	public void completeReservation(Long id) {
+		Reservation reservation = reservationRepository.findById(id).orElseThrow();
+		reservation.setState(State.COMPLETED);
+		reservationRepository.save(reservation);
+	}
+
+
+
+
 }

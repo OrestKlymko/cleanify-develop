@@ -1,6 +1,6 @@
 package com.cleaning.cleanify.rating.service;
 
-import com.cleaning.cleanify.auth.UserService;
+import com.cleaning.cleanify.auth.service.UserService;
 import com.cleaning.cleanify.rating.repository.RatingRepository;
 import com.cleaning.cleanify.rating.dto.RateRequest;
 import com.cleaning.cleanify.rating.model.Rating;

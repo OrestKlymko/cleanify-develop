@@ -3,6 +3,7 @@ package com.cleaning.cleanify.reservation;
 
 import com.cleaning.cleanify.reservation.dto.RebookReservationRequest;
 import com.cleaning.cleanify.reservation.dto.ReservationCreateRequest;
+import com.cleaning.cleanify.reservation.dto.ReservationFullResponse;
 import com.cleaning.cleanify.reservation.dto.UserReservationResponse;
 import com.cleaning.cleanify.reservation.service.ReservationService;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +27,11 @@ public class ReservationController {
 	@GetMapping
 	public List<UserReservationResponse> getReservationsByUser() {
 		return reservationService.getReservationsByUser();
+	}
+
+	@GetMapping("/admin")
+	public List<ReservationFullResponse> getAllReservationsForAdmin() {
+		return reservationService.getAllReservationsForAdmin();
 	}
 
 	@PostMapping("/rebook")

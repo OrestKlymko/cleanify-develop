@@ -1,7 +1,7 @@
 package com.cleaning.cleanify.auth.controller;
 
 
-import com.cleaning.cleanify.auth.UserService;
+import com.cleaning.cleanify.auth.service.UserService;
 import com.cleaning.cleanify.auth.dto.UserUpdateRequest;
 import com.cleaning.cleanify.auth.dto.UserUpdateResponse;
 import org.springframework.web.bind.annotation.*;

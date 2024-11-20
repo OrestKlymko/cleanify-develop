@@ -1,9 +1,9 @@
 package com.cleaning.cleanify.security;
 
-import com.cleaning.cleanify.auth.UserService;
-import com.cleaning.cleanify.auth.dto.UserUpdateResponse;
+import com.cleaning.cleanify.auth.model.Role;
 import com.cleaning.cleanify.auth.model.User;
 import com.cleaning.cleanify.auth.repository.UserRepository;
+import com.cleaning.cleanify.auth.service.UserService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -22,23 +22,27 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
+
 @Component
 public class AuthFilter extends OncePerRequestFilter {
 
 	private final UserRepository userRepository;
+	private final UserService userService;
 
 	@Value("${google.client.id}")
 	private String CLIENT_ID;
 
-	public AuthFilter(UserRepository userRepository) {
+	public AuthFilter(UserRepository userRepository, UserService userService) {
 		this.userRepository = userRepository;
+		this.userService = userService;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
 		String idTokenFromRequest = request.getHeader("Authorization");
-		if (idTokenFromRequest != null) {
+
+		if (idTokenFromRequest != null && !idTokenFromRequest.isEmpty()) {
 			GoogleIdTokenVerifier verifier = null;
 			try {
 				verifier = new GoogleIdTokenVerifier.Builder(
@@ -50,22 +54,15 @@ public class AuthFilter extends OncePerRequestFilter {
 				if (idToken != null) {
 					GoogleIdToken.Payload tokenPayload = idToken.getPayload();
 					String email = tokenPayload.getEmail();
-
-					User savedUser = userRepository.findByEmail(email).orElseGet(() -> {
-						String givenName = (String) tokenPayload.get("given_name");
-						User user = new User();
-						user.setEmail(email);
-						user.setFirstName(givenName);
-						return userRepository.save(user);
-					});
-					UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(savedUser.getId(), null, null);
+					User user = userService.saveUser(email, tokenPayload);
+					UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getId(), null, null);
 					SecurityContextHolder.getContext().setAuthentication(token);
 				}
 			} catch (GeneralSecurityException e) {
 				throw new RuntimeException(e);
 			}
-
-			filterChain.doFilter(request, response);
 		}
+		filterChain.doFilter(request, response);
 	}
+
 }
