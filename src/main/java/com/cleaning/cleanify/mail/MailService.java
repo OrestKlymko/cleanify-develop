@@ -27,6 +27,8 @@ public class MailService {
 				"Your reservation has been confirmed. We are looking forward to seeing you on " + reservation.getDate().format(formatter) + ".\n\n" +
 				"Best regards,\n" +
 				"Cleanify team");
+
+		mailSender.send(mailMessage);
 	}
 
 	public void sendCancellationReservationMail(String to, User user, Reservation reservation) {
@@ -38,6 +40,7 @@ public class MailService {
 				"Your reservation on " + reservation.getDate().format(formatter) + " has been cancelled.\n\n" +
 				"Best regards,\n" +
 				"Cleanify team");
+		mailSender.send(mailMessage);
 	}
 
 	public void sendMessageNewAppointment(String to, User user, Reservation reservation) {
@@ -49,6 +52,7 @@ public class MailService {
 				"You have a new appointment for "+user.getFirstName()+ "+on " + reservation.getDate().format(formatter) + ".\n\n" +
 				"Best regards,\n" +
 				"Cleanify team");
+		mailSender.send(mailMessage);
 	}
 
 
