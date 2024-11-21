@@ -20,7 +20,6 @@ public class CleaningTypeController {
 
 	@GetMapping
 	public List<CleaningTypeResponse> getCleaningTypes() {
-		System.out.println("CleaningTypeController.getCleaningTypes");
 		return cleaningTypeService.getCleaningTypes();
 	}
 

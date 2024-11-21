@@ -56,6 +56,7 @@ public class MessageService {
 
 	public String getConversationId() {
 		User user = userService.getAuthenticatedUser();
+
 		if(user.getMessages().isEmpty()){
 		 			return UUID.randomUUID().toString();
 		} else {

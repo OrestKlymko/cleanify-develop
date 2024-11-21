@@ -6,14 +6,14 @@ import com.cleaning.cleanify.additionalService.repository.AdditionalServicesRepo
 import com.cleaning.cleanify.auth.service.UserService;
 import com.cleaning.cleanify.auth.model.User;
 import com.cleaning.cleanify.cleaningType.repository.CleaningTypeRepository;
-import com.cleaning.cleanify.reservation.dto.RebookReservationRequest;
-import com.cleaning.cleanify.reservation.dto.ReservationCreateRequest;
-import com.cleaning.cleanify.reservation.dto.ReservationFullResponse;
-import com.cleaning.cleanify.reservation.dto.UserReservationResponse;
+import com.cleaning.cleanify.mail.MailService;
+import com.cleaning.cleanify.payment.service.PaymentService;
+import com.cleaning.cleanify.reservation.dto.*;
 import com.cleaning.cleanify.reservation.model.Reservation;
 import com.cleaning.cleanify.reservation.model.State;
 import com.cleaning.cleanify.reservation.repository.ReservationRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,12 +25,17 @@ public class ReservationService {
 	private final UserService userService;
 	private final CleaningTypeRepository cleaningTypeRepository;
 	private final AdditionalServicesRepository additionalServicesRepository;
+	private final PaymentService paymentService;
+	private final MailService mailService;
+	private static final Logger log = org.slf4j.LoggerFactory.getLogger(ReservationService.class);
 
-	public ReservationService(ReservationRepository reservationRepository, UserService userService, CleaningTypeRepository cleaningTypeRepository, AdditionalServicesRepository additionalServicesRepository) {
+	public ReservationService(ReservationRepository reservationRepository, UserService userService, CleaningTypeRepository cleaningTypeRepository, AdditionalServicesRepository additionalServicesRepository, PaymentService paymentService, MailService mailService) {
 		this.reservationRepository = reservationRepository;
 		this.userService = userService;
 		this.cleaningTypeRepository = cleaningTypeRepository;
 		this.additionalServicesRepository = additionalServicesRepository;
+		this.paymentService = paymentService;
+		this.mailService = mailService;
 	}
 
 
@@ -38,6 +43,8 @@ public class ReservationService {
 	public void createReservation(ReservationCreateRequest reservationCreateRequest) {
 		User authenticatedUser = userService.getAuthenticatedUser();
 		authenticatedUser.setAddress(reservationCreateRequest.address());
+		authenticatedUser.setFirstName(reservationCreateRequest.fullName());
+		authenticatedUser.setPhoneNumber(reservationCreateRequest.phoneNumber());
 		Reservation reservation = new Reservation();
 		reservation.setAddress(reservationCreateRequest.address());
 		reservation.setDate(reservationCreateRequest.date());
@@ -51,13 +58,12 @@ public class ReservationService {
 		reservation.setFloor(reservationCreateRequest.floor());
 		reservation.setApartment(reservationCreateRequest.apartment());
 		reservation.setUser(authenticatedUser);
-
 		List<Long> additionalServicesIds = reservationCreateRequest.additionalServices();
 		List<AdditionalServices> additionalServices = additionalServicesRepository.findAllById(additionalServicesIds);
-
 		reservation.setAdditionalServices(additionalServices);
 		reservation.setState(State.NEW);
 
+		mailService.sendMessageNewAppointment("cleanifybee@gmail.com", authenticatedUser, reservation);
 		reservationRepository.save(reservation);
 	}
 
@@ -90,6 +96,7 @@ public class ReservationService {
 
 		List<AdditionalServices> newAdditionalServices = new ArrayList<>(reservation.getAdditionalServices());
 		newReservation.setAdditionalServices(newAdditionalServices);
+		mailService.sendMessageNewAppointment("cleanifybee@gmail.com", reservation.getUser(), newReservation);
 		reservationRepository.save(newReservation);
 	}
 
@@ -97,16 +104,29 @@ public class ReservationService {
 	public void cancelReservation(Long id) {
 		Reservation reservation = reservationRepository.findById(id).orElseThrow();
 		reservation.setState(State.CANCELLED);
+		mailService.sendCancellationReservationMail(reservation.getUser().getEmail(), reservation.getUser(), reservation);
 		reservationRepository.save(reservation);
 	}
 
-	public void completeReservation(Long id) {
+	public void changeTimeOfReservation(ChangeTimeRequest request) {
+		Reservation reservation = reservationRepository.findById(request.id()).orElseThrow();
+		reservation.setDate(request.date());
+		reservationRepository.save(reservation);
+	}
+
+	@Transactional
+	public void confirmReservation(Long id) {
 		Reservation reservation = reservationRepository.findById(id).orElseThrow();
-		reservation.setState(State.COMPLETED);
-		reservationRepository.save(reservation);
+		try {
+			paymentService.chargeCustomer(reservation.getPrice(), reservation.getUser().getCustomerId());
+
+			reservation.setState(State.ACCEPTED);
+			reservationRepository.save(reservation);
+			mailService.sendConfirmationReservationMail(reservation.getUser().getEmail(), reservation.getUser(), reservation);
+		} catch (Exception e) {
+			log.error("Error confirming reservation", e);
+		}
 	}
-
-
 
 
 }

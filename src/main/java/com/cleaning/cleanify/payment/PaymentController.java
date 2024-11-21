@@ -1,5 +1,6 @@
 package com.cleaning.cleanify.payment;
 
+import com.cleaning.cleanify.payment.service.PaymentService;
 import com.stripe.exception.StripeException;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +30,9 @@ public class PaymentController {
 		paymentService.detachPaymentMethod(methodId);
 	}
 
-	@PostMapping("/charge-customer")
-	public Map<String, Object> chargeCustomer(@RequestBody Map<String, Object> request) {
-		return paymentService.chargeCustomer(request);
-	}
 
+	@PostMapping("/default")
+	public void attachPaymentMethod() throws StripeException {
+		paymentService.setDefaultPaymentMethodForCustomer();
+	}
 }

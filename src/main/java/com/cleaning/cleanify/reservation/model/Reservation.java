@@ -50,7 +50,7 @@ public class Reservation {
 	private int floor;
 
 	@Column(name = "APARTMENT")
-	private int apartment;
+	private String apartment;
 
 	@OneToOne
 	@JoinColumn(name = "CLEANING_TYPE_ID")
@@ -72,11 +72,11 @@ public class Reservation {
 	public Reservation() {
 	}
 
-	public int getApartment() {
+	public String getApartment() {
 		return apartment;
 	}
 
-	public void setApartment(int apartment) {
+	public void setApartment(String  apartment) {
 		this.apartment = apartment;
 	}
 
