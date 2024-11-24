@@ -6,18 +6,30 @@ import com.cleaning.cleanify.auth.model.Role;
 import com.cleaning.cleanify.auth.model.User;
 import com.cleaning.cleanify.auth.repository.UserRepository;
 
+import com.cleaning.cleanify.mail.MailService;
+import com.cleaning.cleanify.payment.service.PaymentService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.stripe.exception.StripeException;
+import com.stripe.model.Customer;
+import com.stripe.model.PaymentMethod;
+import jakarta.transaction.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
 
 	private final UserRepository userRepository;
+	private final MailService mailService;
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(UserService.class);
 
-	public UserService(UserRepository userRepository) {
+	public UserService(UserRepository userRepository, MailService mailService) {
 		this.userRepository = userRepository;
+		this.mailService = mailService;
 	}
 
 
@@ -71,5 +83,35 @@ public class UserService {
 				savedUser.getPhoneNumber(),
 				savedUser.getAddress()
 		);
+	}
+
+	@Transactional
+	public void deleteUser() {
+		User user = getAuthenticatedUser();
+		String customerId = user.getCustomerId();
+		deleteStripeCustomer(customerId);
+		userRepository.delete(user);
+		mailService.successDeleteProfileUser(user.getEmail(), user);
+	}
+
+	private void detachAllPaymentMethods(String customerId) throws StripeException {
+		List<PaymentMethod> paymentMethods = PaymentMethod.list(Map.of("customer", customerId)).getData();
+		for (PaymentMethod paymentMethod : paymentMethods) {
+			try {
+				paymentMethod.detach();
+			} catch (Exception e) {
+				logger.error("Failed to detach payment method: " + paymentMethod.getId(), e);
+			}
+		}
+	}
+
+	public void deleteStripeCustomer(String customerId) {
+		try {
+			Customer customer = Customer.retrieve(customerId);
+			detachAllPaymentMethods(customerId);
+			customer.delete();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to delete Stripe customer.");
+		}
 	}
 }

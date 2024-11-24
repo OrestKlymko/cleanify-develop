@@ -6,6 +6,7 @@ public record AdditionalServiceResponse(
 		Long id,
 		String key,
 		String value,
+		BigDecimal estimatedTimeHours,
 		BigDecimal price
 ) {
 }

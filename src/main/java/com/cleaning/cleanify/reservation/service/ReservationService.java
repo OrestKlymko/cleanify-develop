@@ -112,6 +112,7 @@ public class ReservationService {
 		Reservation reservation = reservationRepository.findById(request.id()).orElseThrow();
 		reservation.setDate(request.date());
 		reservationRepository.save(reservation);
+		mailService.sendMessageChangeTimeOfReservation(reservation.getUser().getEmail(), reservation.getUser(), reservation);
 	}
 
 	@Transactional

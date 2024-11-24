@@ -38,10 +38,10 @@ public class User {
 	@Column(name = "CUSTOMER_ID")
 	private String customerId;
 
-	@OneToMany(mappedBy = "sender")
+	@OneToMany(mappedBy = "sender",cascade = CascadeType.ALL)
 	private List<Message> messages;
 
-	@OneToMany(mappedBy = "user")
+	@OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
 	private List<Reservation> reservations;
 
 	public User(String phoneNumber, String firstName, String email) {

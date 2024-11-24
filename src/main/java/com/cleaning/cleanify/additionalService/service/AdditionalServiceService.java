@@ -21,6 +21,7 @@ public class AdditionalServiceService {
 						additionalService.getId(),
 						additionalService.getKey(),
 						additionalService.getValue(),
+						additionalService.getEstimatedTimeHours(),
 						additionalService.getPrice())
 		).toList();
 	}

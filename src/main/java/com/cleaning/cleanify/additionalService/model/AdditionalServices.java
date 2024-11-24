@@ -22,14 +22,27 @@ public class AdditionalServices {
 	@Column(name = "PRICE")
 	private BigDecimal price;
 
+	@Column(name = "ESTIMATED_TIME_HOURS")
+	private BigDecimal estimatedTimeHours;
+
 	public AdditionalServices() {
 	}
+
+
 
 	public AdditionalServices(Long id, String key, BigDecimal price, String value) {
 		this.id = id;
 		this.key = key;
 		this.price = price;
 		this.value = value;
+	}
+
+	public BigDecimal getEstimatedTimeHours() {
+		return estimatedTimeHours;
+	}
+
+	public void setEstimatedTimeHours(BigDecimal estimatedTimeHours) {
+		this.estimatedTimeHours = estimatedTimeHours;
 	}
 
 	public Long getId() {

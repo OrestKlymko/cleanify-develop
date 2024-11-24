@@ -26,4 +26,9 @@ public class UserController {
 	public UserUpdateResponse updateUser(@RequestBody UserUpdateRequest request) {
 		return userService.updateUser(request);
 	}
+
+	@DeleteMapping
+	public void deleteUser() {
+		userService.deleteUser();
+	}
 }

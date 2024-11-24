@@ -1,6 +1,5 @@
 package com.cleaning.cleanify.mail;
 
-
 import com.cleaning.cleanify.auth.model.User;
 import com.cleaning.cleanify.reservation.model.Reservation;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,41 +18,72 @@ public class MailService {
 	}
 
 	public void sendConfirmationReservationMail(String to, User user, Reservation reservation) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd.yyyy 'at' HH:mm");
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		mailMessage.setTo(to);
-		mailMessage.setSubject("Your reservation has been confirmed");
-		mailMessage.setText("Dear " + user.getFirstName() + ",\n\n" +
-				"Your reservation has been confirmed. We are looking forward to seeing you on " + reservation.getDate().format(formatter) + ".\n\n" +
-				"Best regards,\n" +
-				"Cleanify team");
+		mailMessage.setSubject("🎉 Your Reservation is Confirmed!");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"Thank you for choosing CleanifyBee! 🐝 We're excited to help keep your space sparkling clean.\n\n" +
+				"📅 **Appointment Details:**\n" +
+				reservation.getDate().format(formatter) + "\n\n" +
+				"If you have any questions or need to make changes, feel free to reply to this email or call us anytime.\n\n" +
+				"Warm regards,\n" +
+				"The CleanifyBee Team 💛");
 
 		mailSender.send(mailMessage);
 	}
 
 	public void sendCancellationReservationMail(String to, User user, Reservation reservation) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd.yyyy 'at' HH:mm");
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		mailMessage.setTo(to);
-		mailMessage.setSubject("Your reservation has been cancelled");
-		mailMessage.setText("Dear " + user.getFirstName() + ",\n\n" +
-				"Your reservation on " + reservation.getDate().format(formatter) + " has been cancelled.\n\n" +
-				"Best regards,\n" +
-				"Cleanify team");
+		mailMessage.setSubject("Your Reservation has been Cancelled");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"We're sorry to inform you that your reservation on " + reservation.getDate().format(formatter) + " has been cancelled. If this was a mistake or you wish to reschedule, please let us know—we're here to help!\n\n" +
+				"Wishing you all the best,\n" +
+				"The CleanifyBee Team 💛");
 		mailSender.send(mailMessage);
 	}
 
 	public void sendMessageNewAppointment(String to, User user, Reservation reservation) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd.yyyy 'at' HH:mm");
 		SimpleMailMessage mailMessage = new SimpleMailMessage();
 		mailMessage.setTo(to);
-		mailMessage.setSubject("New appointment");
-		mailMessage.setText("Dear cleaner" + ",\n\n" +
-				"You have a new appointment for "+user.getFirstName()+ "+on " + reservation.getDate().format(formatter) + ".\n\n" +
+		mailMessage.setSubject("✨ New Cleaning Appointment Assigned");
+		mailMessage.setText("Hello,\n\n" +
+				"Great news! You've been assigned a new cleaning appointment.\n\n" +
+				"👤 **Client:** " + user.getFirstName() + "\n" +
+				"📅 **Date & Time:** " + reservation.getDate().format(formatter) + "\n\n" +
+				"Please ensure you're prepared to provide exceptional service. If you have any questions, feel free to reach out to the team.\n\n" +
 				"Best regards,\n" +
-				"Cleanify team");
+				"The CleanifyBee Team 💛");
 		mailSender.send(mailMessage);
 	}
 
+	public void sendMessageChangeTimeOfReservation(String to, User user, Reservation reservation) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM.dd.yyyy 'at' HH:mm");
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(to);
+		mailMessage.setSubject("🔄 Your Reservation has been Updated");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"We've successfully updated the time of your reservation.\n\n" +
+				"📅 **New Appointment Details:**\n" +
+				reservation.getDate().format(formatter) + "\n\n" +
+				"If you have any questions or need further assistance, please don't hesitate to contact us.\n\n" +
+				"Warm regards,\n" +
+				"The CleanifyBee Team 💛");
+		mailSender.send(mailMessage);
+	}
 
+	public void successDeleteProfileUser(String to, User user) {
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(to);
+		mailMessage.setSubject("Your Profile has been Deleted");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"We're sorry to see you go. Your profile has been successfully deleted as per your request.\n\n" +
+				"If there's anything we could have done better or if you have feedback, we'd love to hear from you.\n\n" +
+				"Wishing you all the best,\n" +
+				"The CleanifyBee Team 💛");
+		mailSender.send(mailMessage);
+	}
 }

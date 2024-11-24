@@ -17,6 +17,7 @@ import java.util.Map;
 public class PaymentService {
 	private final UserRepository userRepository;
 	private final UserService userService;
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(PaymentService.class);
 
 
 	public PaymentService(UserRepository userRepository, UserService userService) {

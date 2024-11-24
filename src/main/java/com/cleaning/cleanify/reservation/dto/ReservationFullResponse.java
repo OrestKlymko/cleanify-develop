@@ -18,4 +18,6 @@ public interface ReservationFullResponse {
 	Integer getFloor();
 	String getApartment();
 	List<String> getAdditionalServices();
+	String getPhoneNumber();
+	String getFirstName();
 }
