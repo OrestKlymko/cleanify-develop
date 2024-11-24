@@ -8,6 +8,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,14 +27,12 @@ import java.util.Collections;
 @Component
 public class AuthFilter extends OncePerRequestFilter {
 
-	private final UserRepository userRepository;
 	private final UserService userService;
 
 	@Value("${google.client.id}")
 	private String CLIENT_ID;
 
-	public AuthFilter(UserRepository userRepository, UserService userService) {
-		this.userRepository = userRepository;
+	public AuthFilter(UserService userService) {
 		this.userService = userService;
 	}
 
@@ -41,8 +40,22 @@ public class AuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
 		String idTokenFromRequest = request.getHeader("Authorization");
+		String method = request.getHeader("MethodAuth");
+		if (method.equals("apple")) {
+			if (idTokenFromRequest != null && !idTokenFromRequest.isEmpty()) {
+				try {
+					Claims claims = AppleTokenVerifier.verifyAppleToken(idTokenFromRequest);
 
-		if (idTokenFromRequest != null && !idTokenFromRequest.isEmpty()) {
+					String email = claims.get("email", String.class);
+					User user = userService.saveUser(email);
+					UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getId(), null, null);
+				SecurityContextHolder.getContext().setAuthentication(token);
+				} catch (Exception e) {
+
+					throw new RuntimeException("Invalid Apple token", e);
+				}
+			}
+		} else if (idTokenFromRequest != null && !idTokenFromRequest.isEmpty()) {
 			GoogleIdTokenVerifier verifier = null;
 			try {
 				verifier = new GoogleIdTokenVerifier.Builder(

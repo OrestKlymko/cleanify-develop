@@ -69,6 +69,15 @@ public class UserService {
 		});
 	}
 
+	public User saveUser(String email) {
+		return userRepository.findByEmail(email).orElseGet(() -> {
+			User user = new User();
+			user.setEmail(email);
+			user.setRole(Role.USER);
+			return userRepository.save(user);
+		});
+	}
+
 	public UserUpdateResponse updateUser(UserUpdateRequest userRequest) {
 		User user = getAuthenticatedUser();
 		user.setFirstName(userRequest.givenName());
