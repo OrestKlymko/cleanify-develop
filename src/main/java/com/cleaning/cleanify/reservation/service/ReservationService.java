@@ -13,7 +13,9 @@ import com.cleaning.cleanify.reservation.model.Reservation;
 import com.cleaning.cleanify.reservation.model.State;
 import com.cleaning.cleanify.reservation.repository.ReservationRepository;
 import jakarta.transaction.Transactional;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,11 +43,24 @@ public class ReservationService {
 
 	@Transactional
 	public void createReservation(ReservationCreateRequest reservationCreateRequest) {
-		User authenticatedUser = userService.getAuthenticatedUser();
-		authenticatedUser.setAddress(reservationCreateRequest.address());
-		authenticatedUser.setFirstName(reservationCreateRequest.fullName());
-		authenticatedUser.setPhoneNumber(reservationCreateRequest.phoneNumber());
+		User authenticatedUser = setUserDetail(reservationCreateRequest);
+		Reservation reservation = createReservation(reservationCreateRequest, authenticatedUser);
+		mailService.sendMessageNewAppointment("cleanifybee@gmail.com", authenticatedUser, reservation);
+		reservationRepository.save(reservation);
+	}
+
+	@NotNull
+	private Reservation createReservation(ReservationCreateRequest reservationCreateRequest, User authenticatedUser) {
 		Reservation reservation = new Reservation();
+		List<Long> additionalServicesIds = reservationCreateRequest.additionalServices();
+		List<AdditionalServices> additionalServices = additionalServicesRepository.findAllById(additionalServicesIds);
+		if (reservationCreateRequest.isRegularCleaning()) {
+			reservation.setCleaningFrequency(reservationCreateRequest.cleaningFrequency());
+			reservation.setNextCleaningDate(reservationCreateRequest.date().plusDays(reservationCreateRequest.cleaningFrequency()));
+		}
+		reservation.setRegularCleaning(reservationCreateRequest.isRegularCleaning());
+		reservation.setPaymentMethod(reservationCreateRequest.paymentMethod());
+		reservation.setAdditionalServices(additionalServices);
 		reservation.setAddress(reservationCreateRequest.address());
 		reservation.setDate(reservationCreateRequest.date());
 		reservation.setBedrooms(reservationCreateRequest.bedrooms());
@@ -58,13 +73,17 @@ public class ReservationService {
 		reservation.setFloor(reservationCreateRequest.floor());
 		reservation.setApartment(reservationCreateRequest.apartment());
 		reservation.setUser(authenticatedUser);
-		List<Long> additionalServicesIds = reservationCreateRequest.additionalServices();
-		List<AdditionalServices> additionalServices = additionalServicesRepository.findAllById(additionalServicesIds);
-		reservation.setAdditionalServices(additionalServices);
 		reservation.setState(State.NEW);
+		return reservation;
+	}
 
-		mailService.sendMessageNewAppointment("cleanifybee@gmail.com", authenticatedUser, reservation);
-		reservationRepository.save(reservation);
+	@NotNull
+	private User setUserDetail(ReservationCreateRequest reservationCreateRequest) {
+		User authenticatedUser = userService.getAuthenticatedUser();
+		authenticatedUser.setAddress(reservationCreateRequest.address());
+		authenticatedUser.setFirstName(reservationCreateRequest.fullName());
+		authenticatedUser.setPhoneNumber(reservationCreateRequest.phoneNumber());
+		return authenticatedUser;
 	}
 
 	public List<UserReservationResponse> getReservationsByUser() {
@@ -120,12 +139,40 @@ public class ReservationService {
 		Reservation reservation = reservationRepository.findById(id).orElseThrow();
 		try {
 			paymentService.chargeCustomer(reservation.getPrice(), reservation.getUser().getCustomerId());
-
-			reservation.setState(State.ACCEPTED);
+			if (reservation.getRegularCleaning()) {
+				reservation.setState(State.REGULAR);
+				reservation.setNextCleaningDate(reservation.getDate().plusDays(reservation.getCleaningFrequency()));
+			} else {
+				reservation.setState(State.ACCEPTED);
+			}
 			reservationRepository.save(reservation);
 			mailService.sendConfirmationReservationMail(reservation.getUser().getEmail(), reservation.getUser(), reservation);
 		} catch (Exception e) {
 			log.error("Error confirming reservation", e);
+		}
+	}
+
+	@Transactional
+	public void cancelRegularReservation(Long id) {
+		Reservation reservation = reservationRepository.findById(id).orElseThrow();
+		reservation.setState(State.CANCELLED);
+		reservationRepository.save(reservation);
+		mailService.sendCancellationReservationMail(reservation.getUser().getEmail(), reservation.getUser(), reservation);
+	}
+
+
+	@Scheduled(cron = "0 7 8 * * *")
+	@Transactional
+	public void chargePaymentOnRegularReservations() {
+		List<RegularReservationResponse> reservations = reservationRepository.getRegularReservationsOfCurrentDate();
+		for (RegularReservationResponse reservation : reservations) {
+			try {
+				paymentService.chargeCustomer(reservation.getPrice(), reservation.getCustomerId());
+				reservationRepository.updateDateOfRegularReservation(reservation.getId(), reservation.getCleaningFrequency());
+				mailService.sendConfirmationOfTodayRegularCleaning(reservation.getEmail(), reservation.getFirstName());
+			} catch (Exception e) {
+				log.error("Error confirming reservation", e);
+			}
 		}
 	}
 

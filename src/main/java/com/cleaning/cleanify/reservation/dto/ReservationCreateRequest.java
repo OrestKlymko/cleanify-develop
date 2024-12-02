@@ -19,6 +19,16 @@ public record ReservationCreateRequest(
 		int floor,
 		String apartment,
 		String phoneNumber,
-		String fullName
+		String fullName,
+		boolean isRegularCleaning,
+		String paymentMethod,
+		Integer cleaningFrequency
 ) {
 }
+
+
+
+
+
+
+

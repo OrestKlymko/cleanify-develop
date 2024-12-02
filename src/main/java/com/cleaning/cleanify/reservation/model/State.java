@@ -4,5 +4,6 @@ public enum State {
 	NEW,
 	ACCEPTED,
 	CANCELLED,
-	COMPLETED
+	COMPLETED,
+	REGULAR
 }

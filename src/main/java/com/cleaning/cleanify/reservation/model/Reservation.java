@@ -61,6 +61,18 @@ public class Reservation {
 	@JoinColumn(name = "USER_ID")
 	private User user;
 
+	@Column(name = "PAYMENT_METHOD")
+	private String paymentMethod;
+
+	@Column(name = "CLEANING_FREQUENCY")
+	private Integer cleaningFrequency;
+
+	@Column(name = "IS_REGULAR_CLEANING")
+	private boolean isRegularCleaning;
+
+	@Column(name = "NEXT_CLEANING_DATE")
+	private LocalDateTime nextCleaningDate;
+
 	@ManyToMany
 	@JoinTable(
 			name = "RESERVATION_ADDITIONAL_SERVICE",
@@ -70,6 +82,39 @@ public class Reservation {
 	private List<AdditionalServices> additionalServices;
 
 	public Reservation() {
+	}
+
+
+	public LocalDateTime getNextCleaningDate() {
+		return nextCleaningDate;
+	}
+
+	public void setNextCleaningDate(LocalDateTime nextCleaningDate) {
+		this.nextCleaningDate = nextCleaningDate;
+	}
+
+	public Integer getCleaningFrequency() {
+		return cleaningFrequency;
+	}
+
+	public void setCleaningFrequency(Integer cleaningFrequency) {
+		this.cleaningFrequency = cleaningFrequency;
+	}
+
+	public boolean getRegularCleaning() {
+		return isRegularCleaning;
+	}
+
+	public void setRegularCleaning(boolean regularCleaning) {
+		isRegularCleaning = regularCleaning;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
 	}
 
 	public String getApartment() {

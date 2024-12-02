@@ -86,4 +86,63 @@ public class MailService {
 				"The CleanifyBee Team 💛");
 		mailSender.send(mailMessage);
 	}
+
+	public void sendConfirmationCleaningCommercialBuilding(String to,User user){
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(to);
+		mailMessage.setSubject("Thank you for choosing CleanifyBee! | Confirmation");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"Thank you for choosing CleanifyBee! 🐝 We're excited to help keep your space sparkling clean.\n\n" +
+				"If you have any questions or need to make changes, feel free to reply to this email or call us anytime.\n\n" +
+				"Warm regards,\n" +
+				"The CleanifyBee Team 💛");
+		mailSender.send(mailMessage);
+	}
+
+	public void sendConfirmationOfCompanyCleaningRequestToCall(String to, User user){
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(to);
+		mailMessage.setSubject("We will call you soon! | CleanifyBee");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"Thank you for choosing CleanifyBee! 🐝 We will call you soon to confirm the details of your commercial cleaning request.\n\n" +
+				"If you have any questions or need to make changes, feel free to reply to this email or call us anytime.\n\n" +
+				"Warm regards,\n" +
+				"The CleanifyBee Team 💛");
+		mailSender.send(mailMessage);
+	}
+
+	public void changeTimeOfCommercialCleaning(String to, User user){
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(to);
+		mailMessage.setSubject("Your Commercial Cleaning Date has been Changed");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"We're sorry to inform you that your commercial cleaning date has been changed. If this was a mistake or you wish to reschedule, please let us know—we're here to help!\n\n" +
+				"Wishing you all the best,\n" +
+				"The CleanifyBee Team 💛");
+		mailSender.send(mailMessage);
+	}
+
+	public void cancelCommercialCleaning(String to, User user){
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(to);
+		mailMessage.setSubject("Your Commercial Cleaning has been Cancelled");
+		mailMessage.setText("Hello " + user.getFirstName() + ",\n\n" +
+				"We're sorry to inform you that your commercial cleaning has been cancelled. If this was a mistake or you wish to reschedule, please let us know—we're here to help!\n\n" +
+				"Wishing you all the best,\n" +
+				"The CleanifyBee Team 💛");
+		mailSender.send(mailMessage);
+	}
+
+
+	public void sendConfirmationOfTodayRegularCleaning(String to,String firstName){
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(to);
+		mailMessage.setSubject("We are very excited to clean your space today!");
+		mailMessage.setText("Hello " + firstName + ",\n\n" +
+				"Your regular cleaning is scheduled for today. Our team will be arriving shortly to make your space sparkle.\n\n" +
+				"If you have any questions or need to make changes, feel free to reply to this email or call us anytime.\n\n" +
+				"Warm regards,\n" +
+				"The CleanifyBee Team 💛");
+		mailSender.send(mailMessage);
+	}
 }
