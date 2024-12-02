@@ -42,4 +42,6 @@ public interface ReservationFullResponse {
 	String getNextCleaningDate();
 
 	Boolean getIsRegularCleaning();
+
+	String getPaymentMethod();
 }

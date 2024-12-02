@@ -46,6 +46,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 					r.cleaning_frequency   as cleaningFrequency,
 					r.next_cleaning_date   as nextCleaningDate,
 					r.is_regular_cleaning  as isRegularCleaning,
+					r.payment_method       as paymentMethod,
 			        array_agg(aserv.value) as additionalServices,
 			        u.first_name           as firstName,
 			        u.phone_number         as phoneNumber
