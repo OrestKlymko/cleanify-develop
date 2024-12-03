@@ -164,14 +164,16 @@ public class ReservationService {
 	@Scheduled(cron = "0 7 8 * * *")
 	@Transactional
 	public void chargePaymentOnRegularReservations() {
+		log.info("Charging payment on regular reservations");
 		List<RegularReservationResponse> reservations = reservationRepository.getRegularReservationsOfCurrentDate();
 		for (RegularReservationResponse reservation : reservations) {
 			try {
 				paymentService.chargeCustomer(reservation.getPrice(), reservation.getCustomerId());
 				reservationRepository.updateDateOfRegularReservation(reservation.getId(), reservation.getCleaningFrequency());
 				mailService.sendConfirmationOfTodayRegularCleaning(reservation.getEmail(), reservation.getFirstName());
+				log.info("Payment charged for regular reservation with id: {}", reservation.getId());
 			} catch (Exception e) {
-				log.error("Error confirming reservation", e);
+				log.error("Error charging payment on regular reservation for user with id: {} with error: ", reservation.getId(), e);
 			}
 		}
 	}

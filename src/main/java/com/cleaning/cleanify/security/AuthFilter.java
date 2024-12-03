@@ -13,6 +13,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +27,7 @@ import java.util.Collections;
 
 @Component
 public class AuthFilter extends OncePerRequestFilter {
-
+	private final Logger logger = org.slf4j.LoggerFactory.getLogger(AuthFilter.class);
 	private final UserService userService;
 
 	@Value("${google.client.id}")
@@ -41,6 +42,11 @@ public class AuthFilter extends OncePerRequestFilter {
 
 		String idTokenFromRequest = request.getHeader("Authorization");
 		String method = request.getHeader("MethodAuth");
+		if (method == null) {
+			logger.error("MethodAuth is not provided");
+			filterChain.doFilter(request, response);
+			return;
+		}
 		if (method.equals("apple")) {
 			if (idTokenFromRequest != null && !idTokenFromRequest.isEmpty()) {
 				try {
@@ -49,10 +55,10 @@ public class AuthFilter extends OncePerRequestFilter {
 					String email = claims.get("email", String.class);
 					User user = userService.saveUser(email);
 					UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getId(), null, null);
-				SecurityContextHolder.getContext().setAuthentication(token);
+					SecurityContextHolder.getContext().setAuthentication(token);
 				} catch (Exception e) {
-
-					throw new RuntimeException("Invalid Apple token", e);
+					logger.error("Error while verifying apple token", e);
+					return;
 				}
 			}
 		} else if (idTokenFromRequest != null && !idTokenFromRequest.isEmpty()) {
@@ -72,7 +78,8 @@ public class AuthFilter extends OncePerRequestFilter {
 					SecurityContextHolder.getContext().setAuthentication(token);
 				}
 			} catch (GeneralSecurityException e) {
-				throw new RuntimeException(e);
+				logger.error("Error while verifying google token", e);
+				return;
 			}
 		}
 		filterChain.doFilter(request, response);
